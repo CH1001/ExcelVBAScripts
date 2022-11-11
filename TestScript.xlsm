@@ -1,0 +1,56 @@
+Private Sub CommandButton1_Click()
+
+    Dim wkbOpen As Workbook
+    Dim Cell As Range
+    Dim FoundCell As Range
+    Dim CFC As Integer
+    Dim FoundCell2 As Range
+    Dim wks As Worksheet
+    Dim i As Integer
+    Dim Wkb As Variant
+
+    'Select row
+    On Error Resume Next
+    Set Cell = Application.InputBox( _
+        Prompt:="Please select vlookup cell.", _
+        Title:="Select a Cell", _
+        Type:=8)
+    On Error GoTo 0
+    If Cell Is Nothing Then Exit Sub
+    
+    'Open other workbook
+    Wkb = Application.GetOpenFilename( _
+        FileFilter:="Excel Files (*.xlsx), *.xlsx", _
+        FilterIndex:=1, _
+        Title:="Select a Workbook", _
+        MultiSelect:=False)
+        
+    If Wkb = False Then Exit Sub
+    
+    Application.ScreenUpdating = False
+    
+    Set wkbOpen = Workbooks.Open(Filename:=Wkb)
+    
+    'Matching
+    With wkbOpen
+        Set wks = Worksheets("Report")
+        For i = 1 To 192
+            Set FoundCell = wks.Cells.Find(Cell.Value, LookIn:=xlValues, MatchCase:=False)
+            CFC = FoundCell.Column
+            wks.Columns(CFC).Select
+            Set FoundCell2 = Selection.Find(Cells(3, i + 3).Value, LookIn:=xlValues, MatchCase:=False)
+            If Not FoundCell2 Is Nothing Then
+                If Cells(3, i + 3).Value = "" Then
+                    Cell.Offset(0, i + 1).Value = ""
+                ElseIf Cells(3, i + 3).Value = FoundCell2.Value Then
+                    Cell.Offset(0, i + 1).Value = "Y"
+                Else
+                    Cell.Offset(0, i + 1).Value = "N"
+                End If
+            Else
+                Cell.Offset(0, i + 1).Value = ""
+            End If
+        Next i
+        .Close savechanges:=False
+    End With
+End Sub

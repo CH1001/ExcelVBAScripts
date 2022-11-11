@@ -1,4 +1,4 @@
-Private Sub CommandButton1_Click() 
+Private Sub CommandButton1_Click()
 
     Dim wkbOpen As Workbook
     Dim Cell As Range
